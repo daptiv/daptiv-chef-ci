@@ -1,0 +1,41 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  chef_repo_dir = '<%= chef_repo_dir %>'
+
+  config.berkshelf.enabled = true
+
+  config.vm.box = '<%= box_name %>'
+  <% if !box_url.nil? %>
+  config.vm.box_url = '<%= box_url %>'
+  <% end %>
+
+  <% if guest_os == :windows %>
+  config.vm.guest = :windows
+
+  config.windows.halt_timeout = 15
+  config.winrm.username = "vagrant"
+  config.winrm.password = "vagrant"
+
+  config.vm.network :forwarded_port, guest: 3389, host: 3389
+  config.vm.network :forwarded_port, guest: 5985, host: 5985
+  <% end %>
+
+  config.vm.provision :chef_solo do |chef|
+    chef.node_name = '<%= node_name %>'
+    chef.log_level = :info
+    chef.roles_path = File.join(chef_repo_dir, 'roles')
+    chef.data_bags_path = File.join(chef_repo_dir, 'data_bags')
+    chef.encrypted_data_bag_secret_key_path = '/etc/chef/encrypted_data_bag_secret'
+    chef.add_recipe 'minitest-handler'
+    <% run_list.each do |recipe| %>
+      chef.add_recipe '<%= recipe %>'
+    <% end %>
+    <% if !chef_json.nil? %>
+      chef.json = {
+        <%= chef_json %>
+      } 
+    <% end %>   
+  end
+end
