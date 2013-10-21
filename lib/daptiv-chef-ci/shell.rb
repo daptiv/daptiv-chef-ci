@@ -1,5 +1,4 @@
 require 'log4r'
-require 'mixlib/shellout'
 require 'bundler'
 
 module DaptivChefCI
