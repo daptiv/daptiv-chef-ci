@@ -13,7 +13,20 @@ Add a dependency for daptiv-chef-ci in your Gemfile
 
 `gem 'daptiv-chef-ci'`
 
-In your Rakefile require 'daptiv-chef-ci/vagrant_task' and then declare a new Vagrant::RakeTask with your project's Vagrant configuration. Here's an example that specifies a Windows Vagrant box:
+In your Rakefile require 'daptiv-chef-ci/vagrant_task' and then declare a new Vagrant::RakeTask. The minimal task declaration look like this in your rake file:
+
+```
+require 'daptiv-chef-ci/vagrant_task'
+
+Vagrant::RakeTask.new
+```
+
+The rake task will attempt to load a Vagrantfile as an Erubis template from the following locations in order:
+
+- Vagrantfile.erb
+- Vagrantfile
+
+If none of those exist the task will use the Vagrantfile.erb template embedded in this gem. Here's an example that specifies a Windows Vagrant box using the embedded Vagrantfile:
 
 ```
 require 'daptiv-chef-ci/vagrant_task'
@@ -28,7 +41,7 @@ end
 
 ## Configuration
 
-The vagrant task makes the following assumptions:
+The vagrant rake task provides the following configuration parameters to the ERB template, these can be configured using the same name in the rake task:
 
 - guest_os - defaults to :linux
 - chef_repo_dir - The chef-repo root directory, defaults to ~/src/chef-repo

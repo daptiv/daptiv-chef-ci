@@ -75,7 +75,7 @@ module DaptivChefCI
     def vagrantfile_erb_path()
       erbs = [
         File.join(Dir.pwd, 'Vagrantfile.erb'),
-        File.join(Dir.pwd, 'build/Vagrantfile.erb'),
+        File.join(Dir.pwd, 'Vagrantfile'),
         File.expand_path('Vagrantfile.erb', template_dir())
       ]
           
