@@ -7,7 +7,7 @@ This is a really thin wrapper around Vagrant that makes it a little easier to ca
 2. Ensures vagrant is loaded from your PATH and _not_ from a bundled gem.
 3. Reduces duplication between cookbook Vagrantfiles.
 
-# Basic Usage
+## Basic Usage
 
 Add a dependency for daptiv-chef-ci in your Gemfile
 
@@ -26,7 +26,7 @@ Vagrant::RakeTask.new do |task|
 end
 ```
 
-# Configuration
+## Configuration
 
 The vagrant task makes the following assumptions:
 
@@ -38,7 +38,13 @@ The vagrant task makes the following assumptions:
 - run_list - The Chef run list, defaults to empty.
 - chef_json - Any additional Chef attributes in json format, this is optional.
 
-# Development
+## Logging
+
+By default this gem will not log anything other than errors to stderr, however quite often its useful to get more information from the running Vagrant process. To change the gem logging level set the CHEF_CI_LOG environment variable to one supported by log4r (DEBUG, INFO etc).
+
+`CHEF_CI_LOG=DEBUG bundle exec rake vagrant`
+
+## Development
 
 Clone this repository and use [Bundler](http://gembundler.com) to get the dependencies:
 
