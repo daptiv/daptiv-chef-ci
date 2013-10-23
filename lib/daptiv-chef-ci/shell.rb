@@ -15,15 +15,16 @@ module DaptivChefCI
     # that the user has outside Ruby/Bundler.
     #
     # @param [String] The command line to execute
+    # @param [Int] The number of seconds to wait for the command to finish, defaults to 600
     # @return [Array] Each entry represents a line from the stdout
-    def exec_cmd(command)
+    def exec_cmd(command, timeout=600)
       path_at_start = ENV['PATH']
       begin
         ENV['PATH'] = path_without_gem_dir()
         @logger.debug("Temporarily setting PATH: #{ENV['PATH']}")
         
         @logger.info("Calling command [#{command}]")
-        shell_out = Mixlib::ShellOut.new(command)
+        shell_out = Mixlib::ShellOut.new(command, :timeout => timeout)
         shell_out.run_command()
         shell_out.invalid! if shell_out.exitstatus != 0
         
