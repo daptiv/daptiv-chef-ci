@@ -90,4 +90,21 @@ describe DaptivChefCI::VagrantDriver, :unit => true do
     end
   end
   
+  describe 'backup_and_restore_vagrantfile' do
+    it 'should restore Vagrantfile' do
+      begin
+        IO.write('Vagrantfile', 'original')
+        @vagrant.backup_vagrantfile()
+      
+        IO.write('Vagrantfile', 'modified')
+        expect(IO.read('Vagrantfile')).to eq('modified')
+      
+        @vagrant.restore_vagrantfile()
+        expect(IO.read('Vagrantfile')).to eq('original')
+      ensure
+        FileUtils.rm('Vagrantfile')
+      end
+    end
+  end
+  
 end

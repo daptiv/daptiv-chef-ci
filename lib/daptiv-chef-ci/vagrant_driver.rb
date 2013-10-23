@@ -1,6 +1,7 @@
 require 'log4r'
 require 'socket'
 require 'erubis'
+require 'tempfile'
 require_relative 'shell'
 
 module DaptivChefCI
@@ -30,6 +31,22 @@ module DaptivChefCI
       options[:chef_repo_dir] = "#{ENV['HOME']}/src/chef-repo"
       options[:chef_json] ||= nil
       @options = options
+    end
+    
+    def backup_vagrantfile()
+      if File.exists?('Vagrantfile')
+        @vagrantfile_bak = Tempfile.new('Vagrantfile')
+        @vagrantfile_bak.write(File.read('Vagrantfile'))
+        @vagrantfile_bak.close()
+      end
+    end
+    
+    def restore_vagrantfile()
+      if @vagrantfile_bak
+        @vagrantfile_bak.open()
+        IO.write('Vagrantfile', @vagrantfile_bak.read())
+        @vagrantfile_bak.unlink()
+      end
     end
     
     def create_vagrantfile()
