@@ -1,6 +1,7 @@
 require 'mocha/api'
 require 'daptiv-chef-ci/virtualbox_driver'
 require 'daptiv-chef-ci/logger'
+require 'mixlib/shellout/exceptions'
 require 'bundler'
 
 describe DaptivChefCI::Shell, :unit => true do
@@ -11,6 +12,11 @@ describe DaptivChefCI::Shell, :unit => true do
       shell = DaptivChefCI::Shell.new()
       out = shell.exec_cmd('ls -l')
       expect(out.count).to be > 1
+    end
+    
+    it 'should raise exception if exit status is non-zero' do
+      shell = DaptivChefCI::Shell.new()
+      expect { shell.exec_cmd('rm') }.to raise_error(Mixlib::ShellOut::ShellCommandFailed)
     end
     
     it 'should revert path when method returns' do

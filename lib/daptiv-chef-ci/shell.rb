@@ -1,5 +1,6 @@
 require 'log4r'
 require 'bundler'
+require 'mixlib/shellout'
 
 module DaptivChefCI
   class Shell
@@ -16,14 +17,18 @@ module DaptivChefCI
     # @param [String] The command line to execute
     # @return [Array] Each entry represents a line from the stdout
     def exec_cmd(command)
-      @logger.info("Calling command [#{command}]")
       path_at_start = ENV['PATH']
       begin
         ENV['PATH'] = path_without_gem_dir()
         @logger.debug("Temporarily setting PATH: #{ENV['PATH']}")
-        out = `#{command}`
-        @logger.debug(out)
-        out.split("\n")
+        
+        @logger.info("Calling command [#{command}]")
+        shell_out = Mixlib::ShellOut.new(command)
+        shell_out.run_command()
+        shell_out.invalid! if shell_out.exitstatus != 0
+        
+        @logger.info(shell_out.stdout)
+        shell_out.stdout.split("\n")
       ensure
         @logger.debug("Resetting PATH: #{path_at_start}")
         ENV['PATH'] = path_at_start

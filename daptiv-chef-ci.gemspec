@@ -46,7 +46,7 @@ Gem::Specification.new do |gem|
   gem.version       = '0.0.4'
   
   gem.add_runtime_dependency "log4r", "~> 1.1.10"
-  gem.add_runtime_dependency "erubis", "~> 2.7.0"
+  gem.add_runtime_dependency "mixlib-shellout", "~> 1.2.0"
 
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec-core", "~> 2.12.2"
