@@ -33,7 +33,7 @@ describe DaptivChefCI::Shell, :unit => true do
     it 'should not be prefixed by the system gem dir' do
       shell = DaptivChefCI::Shell.new()
       path = shell.path_without_gem_dir()
-      expect(path).not_to include(Bundler.bundle_path.to_s())
+      expect(path).not_to include(Bundler.bundle_path.to_s() + ':')
       expect(ENV['PATH']).to include(path)
     end
     
