@@ -15,7 +15,7 @@ Add a dependency for daptiv-chef-ci in your Gemfile
 
 `gem 'daptiv-chef-ci'`
 
-In your Rakefile require 'daptiv-chef-ci/vagrant_task' and then declare a new Vagrant::RakeTask. The minimal task declaration look like this in your rake file:
+Then just add this to your Rakefile:
 
 ```
 require 'daptiv-chef-ci/vagrant_task'
