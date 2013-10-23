@@ -23,10 +23,10 @@ describe DaptivChefCI::Logger, :unit => true do
       DaptivChefCI::Logger.init()
     end
     
-    it 'should initialize logging to error by default' do
+    it 'should initialize logging to info by default' do
       DaptivChefCI::Logger.init()
       logger = Log4r::Logger.new("daptiv_chef_ci::logger_spec")
-      expect(logger.level).to eq(4)
+      expect(logger.level).to eq(2)
     end
     
     it 'should initialize logging to the specified level' do

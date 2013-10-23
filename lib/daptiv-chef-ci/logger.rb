@@ -26,7 +26,7 @@ module DaptivChefCI
       level_i = Log4r::Log4rConfig::LogLevels.index(level)
       level_i + 1
     rescue
-      return 4 # error
+      return 2 # info
     end
     
   end
