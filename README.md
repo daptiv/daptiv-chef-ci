@@ -1,4 +1,7 @@
 # Daptiv Chef CI
+[![Build Status](https://travis-ci.org/daptiv/daptiv-chef-ci.png)](https://travis-ci.org/daptiv/daptiv-chef-ci)
+[![Gem Version](https://badge.fury.io/rb/daptiv-chef-ci.png)](http://badge.fury.io/rb/daptiv-chef-ci)
+
 Common tools to help automate Vagrant in CI
 
 This is a really thin wrapper around Vagrant that makes it a little easier to call Vagrant from a Rake build. Why on earth does this exist?
