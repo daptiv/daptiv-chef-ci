@@ -20,12 +20,12 @@ module DaptivChefCI
       @shell.exec_cmd('vagrant halt')
     end
     
-    def up()
-      @shell.exec_cmd('vagrant up')
+    def up(timeout=7200)
+      @shell.exec_cmd('vagrant up', timeout)
     end
     
-    def provision()
-      @shell.exec_cmd('vagrant provision')
+    def provision(timeout=7200)
+      @shell.exec_cmd('vagrant provision', timeout)
     end
     
     def reload()
