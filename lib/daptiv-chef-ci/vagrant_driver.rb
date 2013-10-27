@@ -1,4 +1,5 @@
 require 'log4r'
+require 'mixlib/shellout/exceptions'
 require_relative 'shell'
 
 module DaptivChefCI
@@ -12,24 +13,60 @@ module DaptivChefCI
       @shell = shell
     end
     
-    def destroy()
-      @shell.exec_cmd('vagrant destroy -f')
+    def destroy(opts={})
+      opts = {
+        :cmd_timeout_in_seconds => 180,
+        :retry_attempts => 2,
+        :retry_wait_in_seconds => 20
+      }.merge(opts)
+      exec_cmd_with_retry('vagrant destroy -f', opts)
     end
     
-    def halt()
-      @shell.exec_cmd('vagrant halt')
+    def halt(opts={})
+      opts = {
+        :cmd_timeout_in_seconds => 180,
+        :retry_attempts => 2,
+        :retry_wait_in_seconds => 20
+      }.merge(opts)
+      exec_cmd_with_retry('vagrant halt', opts)
     end
     
-    def up(timeout=7200)
-      @shell.exec_cmd('vagrant up', timeout)
+    def up(opts={})
+      opts = {
+        :cmd_timeout_in_seconds => 7200,
+        :retry_attempts => 0
+      }.merge(opts)
+      exec_cmd_with_retry('vagrant up', opts)
     end
     
-    def provision(timeout=7200)
-      @shell.exec_cmd('vagrant provision', timeout)
+    def provision(opts={})
+      opts = {
+        :cmd_timeout_in_seconds => 7200,
+        :retry_attempts => 0
+      }.merge(opts)
+      exec_cmd_with_retry('vagrant provision', opts)
     end
     
-    def reload()
-      @shell.exec_cmd('vagrant reload')
+    def reload(opts={})
+      opts = {
+        :cmd_timeout_in_seconds => 180,
+        :retry_attempts => 0
+      }.merge(opts)
+      exec_cmd_with_retry('vagrant reload', opts)
+    end
+    
+    
+    private
+    
+    def exec_cmd_with_retry(cmd, opts)
+      attempt ||= 1
+      @shell.exec_cmd(cmd, opts[:cmd_timeout_in_seconds] || 600)
+    rescue Mixlib::ShellOut::ShellCommandFailed => e
+      @logger.warn("#{cmd} failed with error: #{e.message}")
+      raise if attempt > (opts[:retry_attempts] || 0)
+      attempt += 1
+      sleep(opts[:retry_wait_in_seconds] || 10)
+      retry
     end
     
   end

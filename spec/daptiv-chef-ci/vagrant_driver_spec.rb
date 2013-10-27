@@ -1,4 +1,5 @@
 require 'mocha/api'
+require 'mixlib/shellout/exceptions'
 require 'daptiv-chef-ci/vagrant_driver'
 require 'daptiv-chef-ci/logger'
 
@@ -24,6 +25,18 @@ describe DaptivChefCI::VagrantDriver, :unit => true do
         expect(cmd).to eq('vagrant halt')
       end
       @vagrant.halt()
+    end
+    
+    it 'should retry when exec fails' do
+      # shell cmd fails then succeeds, the vagrant.halt should succeed overall
+      @shell.stubs(:exec_cmd).raises(Mixlib::ShellOut::ShellCommandFailed, 'There was an error').then.returns('success')
+      @vagrant.halt({ :retry_wait_in_seconds => 0 })
+    end
+    
+    it 'should fail after retrying twice' do
+      # shell always fails, vagrant.halt should fail after a couple retries
+      @shell.stubs(:exec_cmd).raises(Mixlib::ShellOut::ShellCommandFailed, 'There was an error')
+      expect { @vagrant.halt({ :retry_wait_in_seconds => 0 }) }.to raise_error(Mixlib::ShellOut::ShellCommandFailed)
     end
   end
   
