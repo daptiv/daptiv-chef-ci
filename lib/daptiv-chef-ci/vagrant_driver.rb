@@ -34,9 +34,12 @@ module DaptivChefCI
     def up(opts={})
       opts = {
         :cmd_timeout_in_seconds => 7200,
-        :retry_attempts => 0
+        :retry_attempts => 0,
+        :provider => ''
       }.merge(opts)
-      exec_cmd_with_retry('vagrant up', opts)
+      provider = opts[:provider]
+      cmd = provider.empty? ? 'vagrant up' : 'vagrant up --provider=' + provider
+      exec_cmd_with_retry(cmd, opts)
     end
     
     def provision(opts={})
