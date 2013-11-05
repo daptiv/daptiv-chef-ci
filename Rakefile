@@ -15,6 +15,12 @@ RSpec::Core::RakeTask.new do |task|
     task.rspec_opts << '-tunit'
 end
 
+# Run the integration test suite
+RSpec::Core::RakeTask.new(:integration) do |task|
+    task.pattern = "spec/**/*_spec.rb"
+    task.rspec_opts = [ '--color', '-f documentation' ]
+end
+
 # Default task is to run tests
 task :default => "spec"
 
