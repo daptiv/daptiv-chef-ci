@@ -59,6 +59,15 @@ module DaptivChefCI
       exec_cmd_with_retry('vagrant reload', opts)
     end
     
+    def package(opts={})
+      base_dir = opts[:base_dir] || Dir.pwd
+      box_name = opts[:box_name] || File.basename(base_dir)
+      box_name += '.box' unless box_name.end_with?('.box')
+      
+      builder = create_box_builder(base_dir)
+      builder.build(box_name)
+    end
+    
     
     private
     
@@ -71,6 +80,12 @@ module DaptivChefCI
       attempt += 1
       sleep(opts[:retry_wait_in_seconds] || 10)
       retry
+    end
+    
+    def create_box_builder(base_dir)
+      @provider == :vmware_fusion ?
+        DaptivChefCI::VMwareBaseBoxBuilder.new(base_dir) :
+        DaptivChefCI::VirtualBoxBaseBoxBuilder.new(base_dir, @shell)
     end
     
   end
