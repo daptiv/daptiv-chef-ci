@@ -22,7 +22,7 @@ class Vagrant
     # @param [String] name The task name.
     # @param [String] desc Description of the task.
     # @param [String] provider vagrant provider to use if other than the default virtualbox provider
-    def initialize(name = 'vagrant', desc = 'Daptiv Vagrant Tasks', provider = '')
+    def initialize(name = 'vagrant', desc = 'Daptiv Vagrant Tasks', provider = :virtualbox)
       @name, @desc, @provider = name, desc, provider
       yield self if block_given?
       define_task
@@ -33,7 +33,7 @@ class Vagrant
     def define_task
       desc @desc
       task @name do
-        vagrant = DaptivChefCI::VagrantDriver.new(DaptivChefCI::Shell.new())
+        vagrant = DaptivChefCI::VagrantDriver.new(DaptivChefCI::Shell.new(), @provider)
         execute_vagrant_run(vagrant)
       end
     end
@@ -55,9 +55,7 @@ class Vagrant
     
     def try_vagrant_up(vagrant)
       begin
-        vagrant.up({
-                    :provider => @provider
-                   })
+        vagrant.up()
       rescue SystemExit => ex
         exit(ex.status)
       rescue Exception => ex

@@ -8,9 +8,11 @@ module DaptivChefCI
     # Constructs a new Vagrant management instance
     #
     # @param [Shell] The CLI
-    def initialize(shell)
+    # @param [String] The name of the Vagrant virtualization provider: virtualbox, vmware_fusion
+    def initialize(shell, provider = :virtualbox)
       @logger = Log4r::Logger.new("daptiv_chef_ci::vagrant")
       @shell = shell
+      @provider = provider
     end
     
     def destroy(opts={})
@@ -34,11 +36,10 @@ module DaptivChefCI
     def up(opts={})
       opts = {
         :cmd_timeout_in_seconds => 7200,
-        :retry_attempts => 0,
-        :provider => ''
+        :retry_attempts => 0
       }.merge(opts)
-      provider = opts[:provider]
-      cmd = (provider || '').empty? ? 'vagrant up' : 'vagrant up --provider=' + provider
+      cmd = 'vagrant up'
+      cmd += ' --provider=' + @provider.to_s if @provider != :virtualbox
       exec_cmd_with_retry(cmd, opts)
     end
     

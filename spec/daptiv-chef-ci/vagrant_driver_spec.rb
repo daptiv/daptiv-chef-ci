@@ -51,12 +51,11 @@ describe DaptivChefCI::VagrantDriver, :unit => true do
 
   describe 'up with custom provider' do
     it 'should up vagrant' do
+      @vagrant = DaptivChefCI::VagrantDriver.new(@shell, :my_custom_provider)
       @shell.expects(:exec_cmd).with do |cmd|
         expect(cmd).to eq('vagrant up --provider=my_custom_provider')
       end
-      @vagrant.up({
-          :provider => "my_custom_provider"
-      })
+      @vagrant.up()
     end
   end
 
