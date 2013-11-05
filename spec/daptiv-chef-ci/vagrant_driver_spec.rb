@@ -1,4 +1,3 @@
-require 'mocha/api'
 require 'mixlib/shellout/exceptions'
 require 'daptiv-chef-ci/vagrant_driver'
 require 'daptiv-chef-ci/logger'
@@ -7,7 +6,8 @@ describe DaptivChefCI::VagrantDriver, :unit => true do
   
   before(:each) do
     @shell = mock()
-    @vagrant = DaptivChefCI::VagrantDriver.new(@shell)
+    @basebox_builder_factory = stub()
+    @vagrant = DaptivChefCI::VagrantDriver.new(@shell, @basebox_builder_factory)
   end
 
   describe 'destroy' do
@@ -51,7 +51,7 @@ describe DaptivChefCI::VagrantDriver, :unit => true do
 
   describe 'up with custom provider' do
     it 'should up vagrant' do
-      @vagrant = DaptivChefCI::VagrantDriver.new(@shell, :my_custom_provider)
+      @vagrant = DaptivChefCI::VagrantDriver.new(@shell, @basebox_builder_factory, :my_custom_provider)
       @shell.expects(:exec_cmd).with do |cmd|
         expect(cmd).to eq('vagrant up --provider=my_custom_provider')
       end
@@ -74,6 +74,49 @@ describe DaptivChefCI::VagrantDriver, :unit => true do
         expect(cmd).to eq('vagrant reload')
       end
       @vagrant.reload()
+    end
+  end
+  
+  describe 'package' do
+    it 'should default to virtualbox and base_dir to current working dir' do
+      builder = double('builder').as_null_object
+      @basebox_builder_factory.expects(:create).with(@shell, :virtualbox, Dir.pwd).returns(builder)
+      @vagrant.package()
+    end
+  end
+  
+  describe 'package' do
+    it 'should use the specified provider' do
+      builder = double('builder').as_null_object
+      @vagrant = DaptivChefCI::VagrantDriver.new(@shell, @basebox_builder_factory, :vmware_fusion)
+      @basebox_builder_factory.expects(:create).with(@shell, :vmware_fusion, Dir.pwd).returns(builder)
+      @vagrant.package()
+    end
+  end
+  
+  describe 'package' do
+    it 'should use the specified base_dir' do
+      builder = double('builder').as_null_object
+      @basebox_builder_factory.expects(:create).with(@shell, :virtualbox, '/Users/admin/mybox').returns(builder)
+      @vagrant.package({ :base_dir => '/Users/admin/mybox' })
+    end
+  end
+  
+  describe 'package' do
+    it 'should default box_name to directory name' do
+      builder = mock('builder')
+      builder.expects(:build).with('mybox.box')
+      @basebox_builder_factory.stub(:create).and_return(builder)
+      @vagrant.package({ :base_dir => '/Users/admin/mybox' })
+    end
+  end
+  
+  describe 'package' do
+    it 'should ensure box name ends with .box' do
+      builder = mock('builder')
+      builder.expects(:build).with('mybox.box')
+      @basebox_builder_factory.stub(:create).and_return(builder)
+      @vagrant.package({ :box_name => 'mybox' })
     end
   end
   

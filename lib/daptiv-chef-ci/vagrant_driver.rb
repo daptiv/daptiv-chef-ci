@@ -8,10 +8,12 @@ module DaptivChefCI
     # Constructs a new Vagrant management instance
     #
     # @param [Shell] The CLI
+    # @param [BaseBoxBuilderFactory] The base box builder factory instance
     # @param [String] The name of the Vagrant virtualization provider: virtualbox, vmware_fusion
-    def initialize(shell, provider = :virtualbox)
+    def initialize(shell, basebox_builder_factory, provider = :virtualbox)
       @logger = Log4r::Logger.new("daptiv_chef_ci::vagrant")
       @shell = shell
+      @basebox_builder_factory = basebox_builder_factory
       @provider = provider
     end
     
@@ -64,7 +66,7 @@ module DaptivChefCI
       box_name = opts[:box_name] || File.basename(base_dir)
       box_name += '.box' unless box_name.end_with?('.box')
       
-      builder = create_box_builder(base_dir)
+      builder = @basebox_builder_factory.create(@shell, @provider, base_dir)
       builder.build(box_name)
     end
     
@@ -80,12 +82,6 @@ module DaptivChefCI
       attempt += 1
       sleep(opts[:retry_wait_in_seconds] || 10)
       retry
-    end
-    
-    def create_box_builder(base_dir)
-      @provider == :vmware_fusion ?
-        DaptivChefCI::VMwareBaseBoxBuilder.new(base_dir) :
-        DaptivChefCI::VirtualBoxBaseBoxBuilder.new(base_dir, @shell)
     end
     
   end
