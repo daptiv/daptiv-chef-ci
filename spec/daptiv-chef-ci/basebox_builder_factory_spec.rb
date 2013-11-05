@@ -1,4 +1,3 @@
-require 'mocha/api'
 require 'daptiv-chef-ci/basebox_builder_factory'
 require 'daptiv-chef-ci/virtualbox_basebox_builder'
 require 'daptiv-chef-ci/vmware_basebox_builder'
