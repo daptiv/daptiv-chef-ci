@@ -38,7 +38,7 @@ module DaptivChefCI
         :provider => ''
       }.merge(opts)
       provider = opts[:provider]
-      cmd = provider.empty? ? 'vagrant up' : 'vagrant up --provider=' + provider
+      cmd = (provider || '').empty? ? 'vagrant up' : 'vagrant up --provider=' + provider
       exec_cmd_with_retry(cmd, opts)
     end
     

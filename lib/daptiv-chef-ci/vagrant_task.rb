@@ -21,8 +21,9 @@ class Vagrant
     
     # @param [String] name The task name.
     # @param [String] desc Description of the task.
-    def initialize(name = 'vagrant', desc = 'Daptiv Vagrant Tasks')
-      @name, @desc = name, desc
+    # @param [String] provider vagrant provider to use if other than the default virtualbox provider
+    def initialize(name = 'vagrant', desc = 'Daptiv Vagrant Tasks', provider = '')
+      @name, @desc, @provider = name, desc, provider
       yield self if block_given?
       define_task
     end
@@ -54,7 +55,9 @@ class Vagrant
     
     def try_vagrant_up(vagrant)
       begin
-        vagrant.up()
+        vagrant.up({
+                    :provider => @provider
+                   })
       rescue SystemExit => ex
         exit(ex.status)
       rescue Exception => ex
