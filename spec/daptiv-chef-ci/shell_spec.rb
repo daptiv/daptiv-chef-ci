@@ -1,4 +1,3 @@
-require 'mocha/api'
 require 'daptiv-chef-ci/virtualbox_driver'
 require 'daptiv-chef-ci/logger'
 require 'mixlib/shellout/exceptions'

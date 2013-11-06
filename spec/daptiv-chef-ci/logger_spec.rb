@@ -1,4 +1,3 @@
-require 'mocha/api'
 require 'daptiv-chef-ci/logger'
 require 'log4r'
 
