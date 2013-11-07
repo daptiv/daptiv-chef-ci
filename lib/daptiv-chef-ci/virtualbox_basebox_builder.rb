@@ -25,7 +25,7 @@ module DaptivChefCI
       Dir.chdir(@base_dir) {
         @logger.info("Packaging box #{box_file}")
         FileUtils.rm(box_file) if File.exists?(box_file)
-        @shell.exec_cmd("vagrant package --output #{box_file}", 1800)
+        @shell.exec_cmd("vagrant package --output #{box_file}", 3600)
       }
     end
     
