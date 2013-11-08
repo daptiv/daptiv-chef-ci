@@ -1,15 +1,9 @@
 require 'rake'
 require 'rake/tasklib'
+require 'rake/dsl_definition'
 require_relative 'vagrant_driver'
+require_relative 'raketask_helper'
 require_relative 'logger'
-
-begin
-  # Support Rake > 0.8.7
-  require 'rake/dsl_definition'
-rescue LoadError
-end
-
-DaptivChefCI::Logger.init()
 
 class Vagrant
   
@@ -25,6 +19,7 @@ class Vagrant
   # This class lets you define Rake tasks to drive Vagrant.
   class RakeTask < ::Rake::TaskLib
     include ::Rake::DSL if defined? ::Rake::DSL
+    include DaptivChefCI::RakeTaskHelpers
     
     attr_accessor :provider
     attr_accessor :create_box
@@ -65,30 +60,17 @@ class Vagrant
     end
     
     def execute_vagrant_run(vagrant)
-      try_destroy_before_vagrant_up(vagrant)
+      execute { destroy(vagrant) }
       try_vagrant_up(vagrant)
-    end
-    
-    def try_destroy_before_vagrant_up(vagrant)
-      begin
-        destroy(vagrant)
-      rescue SystemExit => ex
-        exit(ex.status)
-      rescue Exception => ex
-        print_err(ex)
-      end
     end
     
     def try_vagrant_up(vagrant)
       begin
-        up(vagrant)
-        halt(vagrant)
-        package(vagrant) if @create_box
-      rescue SystemExit => ex
-        exit(ex.status)
-      rescue Exception => ex
-        print_err(ex)
-        exit(1) 
+        execute do
+          up(vagrant)
+          halt(vagrant)
+          package(vagrant) if @create_box
+        end
       ensure
         halt(vagrant)
         destroy(vagrant)
@@ -109,11 +91,6 @@ class Vagrant
     
     def halt(vagrant)
       vagrant.halt({ :cmd_timeout_in_seconds => @halt_timeout_in_seconds, :retry_attempts => @halt_retry_attempts })
-    end
-    
-    def print_err(ex)
-      STDERR.puts("#{ex.message} (#{ex.class})")
-      STDERR.puts(ex.backtrace.join("\n"))
     end
     
   end

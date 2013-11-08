@@ -31,3 +31,5 @@ module DaptivChefCI
     
   end
 end
+
+DaptivChefCI::Logger.init()

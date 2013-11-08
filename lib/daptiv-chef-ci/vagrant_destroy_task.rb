@@ -5,13 +5,12 @@ require_relative 'vagrant_driver'
 require_relative 'raketask_helper'
 require_relative 'logger'
 
-class VagrantUp
+class VagrantDestroy
   
-  # Example usage, ups and provisions a Vagrant box without halting or destroying it.
+  # Example usage, destroys a Vagrant box.
   #
   # VagrantUp::RakeTask.new 'up' do |t|
-  #   t.provider = :vmware_fusion
-  #   t.up_timeout_in_seconds = 3600
+  #   t.destroy_timeout_in_seconds = 180
   # end
   #
   # This class lets you define Rake tasks to drive Vagrant.
@@ -19,16 +18,13 @@ class VagrantUp
     include ::Rake::DSL if defined? ::Rake::DSL
     include DaptivChefCI::RakeTaskHelpers
     
-    attr_accessor :provider
-    attr_accessor :up_timeout_in_seconds
+    attr_accessor :destroy_timeout_in_seconds
     
     # @param [String] name The task name.
     # @param [String] desc Description of the task.
-    # @param [String] provider vagrant provider to use if other than the default virtualbox provider
-    def initialize(name = 'vagrant_up', desc = 'Vagrant up task')
+    def initialize(name = 'vagrant_destroy', desc = 'Vagrant destroy task')
       @name, @desc = name, desc
-      @provider = :virtualbox
-      @up_timeout_in_seconds = 7200
+      @destroy_timeout_in_seconds = 180
       yield self if block_given?
       define_task
     end
@@ -38,8 +34,8 @@ class VagrantUp
     def define_task
       desc @desc
       task @name do
-        vagrant = DaptivChefCI::VagrantDriver.new(@provider)
-        execute { vagrant.up({ :cmd_timeout_in_seconds => @provision_timeout_in_seconds }) }
+        vagrant = DaptivChefCI::VagrantDriver.new()
+        execute { vagrant.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds }) }
       end
     end
 
