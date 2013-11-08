@@ -21,6 +21,7 @@ class Vagrant
     include ::Rake::DSL if defined? ::Rake::DSL
     include DaptivChefCI::RakeTaskHelpers
     
+    attr_accessor :vagrant_driver
     attr_accessor :provider
     attr_accessor :create_box
     attr_accessor :vagrantfile_dir
@@ -45,6 +46,7 @@ class Vagrant
       @destroy_timeout_in_seconds = 180
       @destroy_retry_attempts = 2
       @halt_retry_attempts = 2
+      @vagrant_driver = DaptivChefCI::VagrantDriver.new(@provider)
       yield self if block_given?
       define_task
     end
@@ -54,43 +56,42 @@ class Vagrant
     def define_task
       desc @desc
       task @name do
-        vagrant = DaptivChefCI::VagrantDriver.new(@provider)
-        execute_vagrant_run(vagrant)
+        execute_vagrant_run()
       end
     end
     
-    def execute_vagrant_run(vagrant)
-      execute { destroy(vagrant) }
-      try_vagrant_up(vagrant)
+    def execute_vagrant_run()
+      execute { destroy() }
+      try_vagrant_up()
     end
     
-    def try_vagrant_up(vagrant)
+    def try_vagrant_up()
       begin
         execute do
-          up(vagrant)
-          halt(vagrant)
-          package(vagrant) if @create_box
+          up()
+          halt()
+          package() if @create_box
         end
       ensure
-        halt(vagrant)
-        destroy(vagrant)
+        halt()
+        destroy()
       end
     end
     
-    def up(vagrant)
-      vagrant.up({ :cmd_timeout_in_seconds => @up_timeout_in_seconds })
+    def up()
+      @vagrant_driver.up({ :cmd_timeout_in_seconds => @up_timeout_in_seconds })
     end
     
-    def package(vagrant)
-      vagrant.package({ :base_dir => @vagrantfile_dir, :box_name => @box_name })
+    def package()
+      @vagrant_driver.package({ :base_dir => @vagrantfile_dir, :box_name => @box_name })
     end
     
-    def destroy(vagrant)
-      vagrant.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds, :retry_attempts => @destroy_retry_attempts })
+    def destroy()
+      @vagrant_driver.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds, :retry_attempts => @destroy_retry_attempts })
     end
     
-    def halt(vagrant)
-      vagrant.halt({ :cmd_timeout_in_seconds => @halt_timeout_in_seconds, :retry_attempts => @halt_retry_attempts })
+    def halt()
+      @vagrant_driver.halt({ :cmd_timeout_in_seconds => @halt_timeout_in_seconds, :retry_attempts => @halt_retry_attempts })
     end
     
   end

@@ -18,6 +18,7 @@ class VagrantProvision
     include ::Rake::DSL if defined? ::Rake::DSL
     include DaptivChefCI::RakeTaskHelpers
     
+    attr_accessor :vagrant_driver
     attr_accessor :provision_timeout_in_seconds
     
     # @param [String] name The task name.
@@ -26,6 +27,7 @@ class VagrantProvision
     def initialize(name = 'vagrant_provision', desc = 'Vagrant provision task')
       @name, @desc = name, desc
       @provision_timeout_in_seconds = 7200
+      @vagrant_driver = DaptivChefCI::VagrantDriver.new()
       yield self if block_given?
       define_task
     end
@@ -35,8 +37,7 @@ class VagrantProvision
     def define_task
       desc @desc
       task @name do
-        vagrant = DaptivChefCI::VagrantDriver.new()
-        execute { vagrant.provision({ :cmd_timeout_in_seconds => @provision_timeout_in_seconds }) }
+        execute { @vagrant_driver.provision({ :cmd_timeout_in_seconds => @provision_timeout_in_seconds }) }
       end
     end
 

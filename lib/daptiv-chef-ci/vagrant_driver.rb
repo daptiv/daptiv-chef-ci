@@ -11,11 +11,11 @@ module DaptivChefCI
     # defaults to :virtualbox
     # @param [Shell] The CLI, optional
     # @param [BaseBoxBuilderFactory] The base box builder factory instance, optional
-    def initialize(provider, shell = nil, basebox_builder_factory = nil)
+    def initialize(provider = :virtualbox, shell = nil, basebox_builder_factory = nil)
       @logger = Log4r::Logger.new("daptiv_chef_ci::vagrant")
       @shell = shell || DaptivChefCI::Shell.new()
       @basebox_builder_factory = basebox_builder_factory || DaptivChefCI::BaseBoxBuilderFactory.new()
-      @provider = provider || :virtualbox
+      @provider = provider
     end
     
     def destroy(opts={})

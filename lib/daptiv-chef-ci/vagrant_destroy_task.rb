@@ -18,6 +18,7 @@ class VagrantDestroy
     include ::Rake::DSL if defined? ::Rake::DSL
     include DaptivChefCI::RakeTaskHelpers
     
+    attr_accessor :vagrant_driver
     attr_accessor :destroy_timeout_in_seconds
     
     # @param [String] name The task name.
@@ -25,6 +26,7 @@ class VagrantDestroy
     def initialize(name = 'vagrant_destroy', desc = 'Vagrant destroy task')
       @name, @desc = name, desc
       @destroy_timeout_in_seconds = 180
+      @vagrant_driver = DaptivChefCI::VagrantDriver.new()
       yield self if block_given?
       define_task
     end
@@ -34,8 +36,7 @@ class VagrantDestroy
     def define_task
       desc @desc
       task @name do
-        vagrant = DaptivChefCI::VagrantDriver.new()
-        execute { vagrant.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds }) }
+        execute { @vagrant_driver.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds }) }
       end
     end
 

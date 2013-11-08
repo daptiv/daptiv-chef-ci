@@ -19,6 +19,7 @@ class VagrantUp
     include ::Rake::DSL if defined? ::Rake::DSL
     include DaptivChefCI::RakeTaskHelpers
     
+    attr_accessor :vagrant_driver
     attr_accessor :provider
     attr_accessor :up_timeout_in_seconds
     
@@ -29,6 +30,7 @@ class VagrantUp
       @name, @desc = name, desc
       @provider = :virtualbox
       @up_timeout_in_seconds = 7200
+      @vagrant_driver = DaptivChefCI::VagrantDriver.new(@provider)
       yield self if block_given?
       define_task
     end
@@ -38,8 +40,7 @@ class VagrantUp
     def define_task
       desc @desc
       task @name do
-        vagrant = DaptivChefCI::VagrantDriver.new(@provider)
-        execute { vagrant.up({ :cmd_timeout_in_seconds => @provision_timeout_in_seconds }) }
+        execute { @vagrant_driver.up({ :cmd_timeout_in_seconds => @up_timeout_in_seconds }) }
       end
     end
 
