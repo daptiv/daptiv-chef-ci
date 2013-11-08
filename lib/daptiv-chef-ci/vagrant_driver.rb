@@ -1,5 +1,6 @@
 require 'log4r'
 require 'mixlib/shellout/exceptions'
+require_relative 'basebox_builder_factory'
 require_relative 'shell'
 
 module DaptivChefCI
