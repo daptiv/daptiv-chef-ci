@@ -1,9 +1,6 @@
 require 'rake'
 require 'rake/tasklib'
 require_relative 'vagrant_driver'
-require_relative 'virtualbox_driver'
-require_relative 'basebox_builder_factory'
-require_relative 'shell'
 require_relative 'logger'
 
 begin
@@ -42,7 +39,7 @@ class Vagrant
     # @param [String] name The task name.
     # @param [String] desc Description of the task.
     # @param [String] provider vagrant provider to use if other than the default virtualbox provider
-    def initialize(name = 'vagrant', desc = 'Daptiv Vagrant Tasks')
+    def initialize(name = 'vagrant', desc = 'Vagrant up, halt, destroy, package task')
       @name, @desc = name, desc
       @provider = :virtualbox
       @create_box = false
@@ -62,9 +59,7 @@ class Vagrant
     def define_task
       desc @desc
       task @name do
-        shell = DaptivChefCI::Shell.new()
-        basebox_builder_factory = DaptivChefCI::BaseBoxBuilderFactory.new()
-        vagrant = DaptivChefCI::VagrantDriver.new(shell, basebox_builder_factory, @provider)
+        vagrant = DaptivChefCI::VagrantDriver.new(@provider)
         execute_vagrant_run(vagrant)
       end
     end

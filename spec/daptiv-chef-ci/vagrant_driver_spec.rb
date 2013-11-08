@@ -7,7 +7,7 @@ describe DaptivChefCI::VagrantDriver, :unit => true do
   before(:each) do
     @shell = mock()
     @basebox_builder_factory = stub()
-    @vagrant = DaptivChefCI::VagrantDriver.new(@shell, @basebox_builder_factory)
+    @vagrant = DaptivChefCI::VagrantDriver.new(:virtualbox, @shell, @basebox_builder_factory)
   end
 
   describe 'destroy' do
@@ -44,7 +44,7 @@ describe DaptivChefCI::VagrantDriver, :unit => true do
     end
 
     it 'should up vagrant and specify the provider if not virtualbox' do
-      @vagrant = DaptivChefCI::VagrantDriver.new(@shell, @basebox_builder_factory, :my_custom_provider)
+      @vagrant = DaptivChefCI::VagrantDriver.new(:my_custom_provider, @shell, @basebox_builder_factory)
       @shell.should_receive(:exec_cmd).with('vagrant up --provider=my_custom_provider', 7200)
       @vagrant.up()
     end
@@ -73,7 +73,7 @@ describe DaptivChefCI::VagrantDriver, :unit => true do
 
     it 'should use the specified provider' do
       builder = double('builder').as_null_object
-      @vagrant = DaptivChefCI::VagrantDriver.new(@shell, @basebox_builder_factory, :vmware_fusion)
+      @vagrant = DaptivChefCI::VagrantDriver.new(:vmware_fusion, @shell, @basebox_builder_factory)
       @basebox_builder_factory.should_receive(:create).with(@shell, :vmware_fusion, Dir.pwd).and_return(builder)
       @vagrant.package()
     end
