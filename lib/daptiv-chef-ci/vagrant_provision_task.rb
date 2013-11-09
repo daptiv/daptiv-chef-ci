@@ -11,6 +11,7 @@ class VagrantProvision
   #
   # VagrantProvision::RakeTask.new 'provision' do |t|
   #   t.provision_timeout_in_seconds = 3600
+  #   t.environment = { :ENV_VAR1 => 'val1', :ENV_VAR2 => 'val2' }
   # end
   #
   # This class lets you define Rake tasks to drive Vagrant.
@@ -20,6 +21,7 @@ class VagrantProvision
     
     attr_accessor :vagrant_driver
     attr_accessor :provision_timeout_in_seconds
+    attr_accessor :environment
     
     # @param [String] name The task name.
     # @param [String] desc Description of the task.
@@ -27,6 +29,7 @@ class VagrantProvision
     def initialize(name = 'vagrant_provision', desc = 'Vagrant provision task')
       @name, @desc = name, desc
       @provision_timeout_in_seconds = 7200
+      @environment = {}
       @vagrant_driver = DaptivChefCI::VagrantDriver.new()
       yield self if block_given?
       define_task
@@ -37,7 +40,12 @@ class VagrantProvision
     def define_task
       desc @desc
       task @name do
-        execute { @vagrant_driver.provision({ :cmd_timeout_in_seconds => @provision_timeout_in_seconds }) }
+        execute {
+          @vagrant_driver.provision({
+            :cmd_timeout_in_seconds => @provision_timeout_in_seconds,
+            :environment => @environment
+          })
+        }
       end
     end
 
