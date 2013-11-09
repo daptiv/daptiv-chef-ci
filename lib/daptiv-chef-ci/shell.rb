@@ -16,15 +16,17 @@ module DaptivChefCI
     #
     # @param [String] The command line to execute
     # @param [Int] The number of seconds to wait for the command to finish, defaults to 600
+    # @param [Hash] Key value pairs of environment variables to pass to the command's environment.
     # @return [Array] Each entry represents a line from the stdout
-    def exec_cmd(command, timeout=600)
+    def exec_cmd(command, timeout = nil, environment = {})
+      timeout ||= 600
       path_at_start = ENV['PATH']
       begin
         ENV['PATH'] = path_without_gem_dir()
         @logger.debug("Temporarily setting PATH: #{ENV['PATH']}")
         
         @logger.info("Calling command [#{command}]")
-        shell_out = Mixlib::ShellOut.new(command, :timeout => timeout)
+        shell_out = Mixlib::ShellOut.new(command, :timeout => timeout, :environment => environment)
         shell_out.run_command()
         shell_out.invalid! if shell_out.exitstatus != 0
         
