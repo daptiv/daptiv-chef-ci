@@ -1,5 +1,6 @@
 require 'log4r'
 require 'mixlib/shellout/exceptions'
+require_relative 'basebox_builder_factory'
 require_relative 'shell'
 
 module DaptivChefCI
@@ -7,13 +8,14 @@ module DaptivChefCI
     
     # Constructs a new Vagrant management instance
     #
-    # @param [Shell] The CLI
-    # @param [BaseBoxBuilderFactory] The base box builder factory instance
     # @param [String] The name of the Vagrant virtualization provider: virtualbox, vmware_fusion
-    def initialize(shell, basebox_builder_factory, provider = :virtualbox)
+    # defaults to :virtualbox
+    # @param [Shell] The CLI, optional
+    # @param [BaseBoxBuilderFactory] The base box builder factory instance, optional
+    def initialize(provider = :virtualbox, shell = nil, basebox_builder_factory = nil)
       @logger = Log4r::Logger.new("daptiv_chef_ci::vagrant")
-      @shell = shell
-      @basebox_builder_factory = basebox_builder_factory
+      @shell = shell || DaptivChefCI::Shell.new()
+      @basebox_builder_factory = basebox_builder_factory || DaptivChefCI::BaseBoxBuilderFactory.new()
       @provider = provider
     end
     

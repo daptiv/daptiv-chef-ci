@@ -1,18 +1,9 @@
 require 'rake'
 require 'rake/tasklib'
+require 'rake/dsl_definition'
 require_relative 'vagrant_driver'
-require_relative 'virtualbox_driver'
-require_relative 'basebox_builder_factory'
-require_relative 'shell'
+require_relative 'raketask_helper'
 require_relative 'logger'
-
-begin
-  # Support Rake > 0.8.7
-  require 'rake/dsl_definition'
-rescue LoadError
-end
-
-DaptivChefCI::Logger.init()
 
 class Vagrant
   
@@ -28,7 +19,9 @@ class Vagrant
   # This class lets you define Rake tasks to drive Vagrant.
   class RakeTask < ::Rake::TaskLib
     include ::Rake::DSL if defined? ::Rake::DSL
+    include DaptivChefCI::RakeTaskHelpers
     
+    attr_accessor :vagrant_driver
     attr_accessor :provider
     attr_accessor :create_box
     attr_accessor :vagrantfile_dir
@@ -42,7 +35,7 @@ class Vagrant
     # @param [String] name The task name.
     # @param [String] desc Description of the task.
     # @param [String] provider vagrant provider to use if other than the default virtualbox provider
-    def initialize(name = 'vagrant', desc = 'Daptiv Vagrant Tasks')
+    def initialize(name = 'vagrant', desc = 'Vagrant up, halt, destroy, package task')
       @name, @desc = name, desc
       @provider = :virtualbox
       @create_box = false
@@ -53,6 +46,7 @@ class Vagrant
       @destroy_timeout_in_seconds = 180
       @destroy_retry_attempts = 2
       @halt_retry_attempts = 2
+      @vagrant_driver = DaptivChefCI::VagrantDriver.new(@provider)
       yield self if block_given?
       define_task
     end
@@ -62,63 +56,42 @@ class Vagrant
     def define_task
       desc @desc
       task @name do
-        shell = DaptivChefCI::Shell.new()
-        basebox_builder_factory = DaptivChefCI::BaseBoxBuilderFactory.new()
-        vagrant = DaptivChefCI::VagrantDriver.new(shell, basebox_builder_factory, @provider)
-        execute_vagrant_run(vagrant)
+        execute_vagrant_run()
       end
     end
     
-    def execute_vagrant_run(vagrant)
-      try_destroy_before_vagrant_up(vagrant)
-      try_vagrant_up(vagrant)
+    def execute_vagrant_run()
+      execute { destroy() }
+      try_vagrant_up()
     end
     
-    def try_destroy_before_vagrant_up(vagrant)
+    def try_vagrant_up()
       begin
-        destroy(vagrant)
-      rescue SystemExit => ex
-        exit(ex.status)
-      rescue Exception => ex
-        print_err(ex)
-      end
-    end
-    
-    def try_vagrant_up(vagrant)
-      begin
-        up(vagrant)
-        halt(vagrant)
-        package(vagrant) if @create_box
-      rescue SystemExit => ex
-        exit(ex.status)
-      rescue Exception => ex
-        print_err(ex)
-        exit(1) 
+        execute do
+          up()
+          halt()
+          package() if @create_box
+        end
       ensure
-        halt(vagrant)
-        destroy(vagrant)
+        halt()
+        destroy()
       end
     end
     
-    def up(vagrant)
-      vagrant.up({ :cmd_timeout_in_seconds => @up_timeout_in_seconds })
+    def up()
+      @vagrant_driver.up({ :cmd_timeout_in_seconds => @up_timeout_in_seconds })
     end
     
-    def package(vagrant)
-      vagrant.package({ :base_dir => @vagrantfile_dir, :box_name => @box_name })
+    def package()
+      @vagrant_driver.package({ :base_dir => @vagrantfile_dir, :box_name => @box_name })
     end
     
-    def destroy(vagrant)
-      vagrant.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds, :retry_attempts => @destroy_retry_attempts })
+    def destroy()
+      @vagrant_driver.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds, :retry_attempts => @destroy_retry_attempts })
     end
     
-    def halt(vagrant)
-      vagrant.halt({ :cmd_timeout_in_seconds => @halt_timeout_in_seconds, :retry_attempts => @halt_retry_attempts })
-    end
-    
-    def print_err(ex)
-      STDERR.puts("#{ex.message} (#{ex.class})")
-      STDERR.puts(ex.backtrace.join("\n"))
+    def halt()
+      @vagrant_driver.halt({ :cmd_timeout_in_seconds => @halt_timeout_in_seconds, :retry_attempts => @halt_retry_attempts })
     end
     
   end
