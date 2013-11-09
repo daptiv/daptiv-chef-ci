@@ -20,6 +20,7 @@ module DaptivChefCI
     # @return [Array] Each entry represents a line from the stdout
     def exec_cmd(command, timeout = nil, environment = {})
       timeout ||= 600
+      environment = Hash[ environment.map{ |k, v| [k.to_s, v.to_s] } ]
       path_at_start = ENV['PATH']
       begin
         ENV['PATH'] = path_without_gem_dir()
