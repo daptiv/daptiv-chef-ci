@@ -12,14 +12,14 @@ describe DaptivChefCI::VagrantDriver, :unit => true do
 
   describe 'destroy' do
     it 'should force shutdown vagrant with a timeout of 180 seconds' do
-      @shell.should_receive(:exec_cmd).with('vagrant destroy -f', 180)
+      @shell.should_receive(:exec_cmd).with('vagrant destroy -f', 180, {})
       @vagrant.destroy()
     end
   end
   
   describe 'halt' do
     it 'should halt vagrant with a timeout of 180 seconds' do
-      @shell.should_receive(:exec_cmd).with('vagrant halt', 180)
+      @shell.should_receive(:exec_cmd).with('vagrant halt', 180, {})
       @vagrant.halt()
     end
     
@@ -39,27 +39,39 @@ describe DaptivChefCI::VagrantDriver, :unit => true do
   
   describe 'up' do
     it 'should up vagrant with a timeout of 7200 seconds' do
-      @shell.should_receive(:exec_cmd).with('vagrant up', 7200)
+      @shell.should_receive(:exec_cmd).with('vagrant up', 7200, {})
       @vagrant.up()
     end
 
     it 'should up vagrant and specify the provider if not virtualbox' do
       @vagrant = DaptivChefCI::VagrantDriver.new(:my_custom_provider, @shell, @basebox_builder_factory)
-      @shell.should_receive(:exec_cmd).with('vagrant up --provider=my_custom_provider', 7200)
+      @shell.should_receive(:exec_cmd).with('vagrant up --provider=my_custom_provider', 7200, {})
       @vagrant.up()
+    end
+    
+    it 'should pass along environment variables' do
+      environment = { :A => 'A' }
+      @shell.should_receive(:exec_cmd).with('vagrant up', 7200, environment)
+      @vagrant.up({ :environment => environment })
     end
   end
 
   describe 'provision' do
     it 'should provision vagrant with a timeout of 7200 seconds' do
-      @shell.should_receive(:exec_cmd).with('vagrant provision', 7200)
+      @shell.should_receive(:exec_cmd).with('vagrant provision', 7200, {})
       @vagrant.provision()
+    end
+    
+    it 'should pass along environment variables' do
+      environment = { :A => 'A' }
+      @shell.should_receive(:exec_cmd).with('vagrant provision', 7200, environment)
+      @vagrant.provision({ :environment => environment })
     end
   end
   
   describe 'reload' do
     it 'should reload vagrant with a timeout of 180 seconds' do
-      @shell.should_receive(:exec_cmd).with('vagrant reload', 180)
+      @shell.should_receive(:exec_cmd).with('vagrant reload', 180, {})
       @vagrant.reload()
     end
   end
