@@ -77,7 +77,9 @@ module DaptivChefCI
     
     def exec_cmd_with_retry(cmd, opts)
       attempt ||= 1
-      @shell.exec_cmd(cmd, opts[:cmd_timeout_in_seconds] || 600)
+      environment ||= opts[:environment] || {}
+      timeout ||= opts[:cmd_timeout_in_seconds] || 600
+      @shell.exec_cmd(cmd, timeout, environment)
     rescue Mixlib::ShellOut::ShellCommandFailed => e
       @logger.warn("#{cmd} failed with error: #{e.message}")
       raise if attempt > (opts[:retry_attempts] || 0)

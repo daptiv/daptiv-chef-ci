@@ -25,6 +25,18 @@ describe DaptivChefCI::Shell, :unit => true do
       expect(ENV['PATH']).to eq(path_before)
     end
     
+    it 'should pass long environment vars' do
+      shell = DaptivChefCI::Shell.new()
+      out = shell.exec_cmd('echo $ENV_VAR1', 600, { 'ENV_VAR1' => 'val1' })
+      expect(out[0]).to eq('val1')
+    end
+    
+    it 'should convert environment symbol keys to strings' do
+      shell = DaptivChefCI::Shell.new()
+      out = shell.exec_cmd('echo $ENV_VAR1', 600, { :ENV_VAR1 => 'val1' })
+      expect(out[0]).to eq('val1')
+    end
+    
   end
   
   describe 'path_without_gem_dir' do

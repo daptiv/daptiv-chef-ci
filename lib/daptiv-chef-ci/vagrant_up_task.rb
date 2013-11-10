@@ -12,6 +12,7 @@ class VagrantUp
   # VagrantUp::RakeTask.new 'up' do |t|
   #   t.provider = :vmware_fusion
   #   t.up_timeout_in_seconds = 3600
+  #   t.environment = { :ENV_VAR1 => 'val1', :ENV_VAR2 => 'val2' }
   # end
   #
   # This class lets you define Rake tasks to drive Vagrant.
@@ -22,6 +23,7 @@ class VagrantUp
     attr_accessor :vagrant_driver
     attr_accessor :provider
     attr_accessor :up_timeout_in_seconds
+    attr_accessor :environment
     
     # @param [String] name The task name.
     # @param [String] desc Description of the task.
@@ -30,6 +32,7 @@ class VagrantUp
       @name, @desc = name, desc
       @provider = :virtualbox
       @up_timeout_in_seconds = 7200
+      @environment = {}
       @vagrant_driver = DaptivChefCI::VagrantDriver.new(@provider)
       yield self if block_given?
       define_task
@@ -40,7 +43,12 @@ class VagrantUp
     def define_task
       desc @desc
       task @name do
-        execute { @vagrant_driver.up({ :cmd_timeout_in_seconds => @up_timeout_in_seconds }) }
+        execute {
+          @vagrant_driver.up({
+            :cmd_timeout_in_seconds => @up_timeout_in_seconds,
+            :environment => @environment
+          })
+        }
       end
     end
 

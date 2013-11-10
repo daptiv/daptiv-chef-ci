@@ -14,6 +14,7 @@ class Vagrant
   #   t.create_box = true
   #   t.box_name = 'windows-server-vmwarefusion.box'
   #   t.up_timeout_in_seconds = 3600
+  #   t.environment = { :ENV_VAR1 => 'val1', :ENV_VAR2 => 'val2' }
   # end
   #
   # This class lets you define Rake tasks to drive Vagrant.
@@ -31,6 +32,7 @@ class Vagrant
     attr_accessor :destroy_timeout_in_seconds
     attr_accessor :destroy_retry_attempts
     attr_accessor :halt_retry_attempts
+    attr_accessor :environment
     
     # @param [String] name The task name.
     # @param [String] desc Description of the task.
@@ -46,6 +48,7 @@ class Vagrant
       @destroy_timeout_in_seconds = 180
       @destroy_retry_attempts = 2
       @halt_retry_attempts = 2
+      @environment = {}
       @vagrant_driver = DaptivChefCI::VagrantDriver.new(@provider)
       yield self if block_given?
       define_task
@@ -79,7 +82,10 @@ class Vagrant
     end
     
     def up()
-      @vagrant_driver.up({ :cmd_timeout_in_seconds => @up_timeout_in_seconds })
+      @vagrant_driver.up({
+        :cmd_timeout_in_seconds => @up_timeout_in_seconds,
+        :environment => @environment
+      })
     end
     
     def package()
