@@ -26,7 +26,7 @@ module DaptivChefCI
         ENV['PATH'] = path_without_gem_dir()
         @logger.debug("Temporarily setting PATH: #{ENV['PATH']}")
         
-        @logger.info("Calling command [#{command}]")
+        @logger.info("Executing: '#{command}'\n\ttimeout: #{timeout}\n\tenvironment: #{environment}")
         shell_out = Mixlib::ShellOut.new(command, :timeout => timeout, :environment => environment)
         shell_out.run_command()
         shell_out.invalid! if shell_out.exitstatus != 0
