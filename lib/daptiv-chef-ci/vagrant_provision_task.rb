@@ -30,7 +30,6 @@ class VagrantProvision
       @name, @desc = name, desc
       @provision_timeout_in_seconds = 7200
       @environment = {}
-      @vagrant_driver = DaptivChefCI::VagrantDriver.new()
       yield self if block_given?
       define_task
     end
@@ -41,12 +40,16 @@ class VagrantProvision
       desc @desc
       task @name do
         execute {
-          @vagrant_driver.provision({
+          vagrant_driver.provision({
             :cmd_timeout_in_seconds => @provision_timeout_in_seconds,
             :environment => @environment
           })
         }
       end
+    end
+
+    def vagrant_driver()
+      @vagrant_driver ||= DaptivChefCI::VagrantDriver.new()
     end
 
   end

@@ -26,7 +26,6 @@ class VagrantDestroy
     def initialize(name = 'vagrant_destroy', desc = 'Vagrant destroy task')
       @name, @desc = name, desc
       @destroy_timeout_in_seconds = 180
-      @vagrant_driver = DaptivChefCI::VagrantDriver.new()
       yield self if block_given?
       define_task
     end
@@ -36,8 +35,12 @@ class VagrantDestroy
     def define_task
       desc @desc
       task @name do
-        execute { @vagrant_driver.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds }) }
+        execute { vagrant_driver.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds }) }
       end
+    end
+    
+    def vagrant_driver()
+      @vagrant_driver ||= DaptivChefCI::VagrantDriver.new()
     end
 
   end

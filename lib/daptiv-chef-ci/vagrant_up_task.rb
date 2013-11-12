@@ -33,7 +33,6 @@ class VagrantUp
       @provider = :virtualbox
       @up_timeout_in_seconds = 7200
       @environment = {}
-      @vagrant_driver = DaptivChefCI::VagrantDriver.new(@provider)
       yield self if block_given?
       define_task
     end
@@ -44,12 +43,16 @@ class VagrantUp
       desc @desc
       task @name do
         execute {
-          @vagrant_driver.up({
+          vagrant_driver.up({
             :cmd_timeout_in_seconds => @up_timeout_in_seconds,
             :environment => @environment
           })
         }
       end
+    end
+    
+    def vagrant_driver()
+      @vagrant_driver ||= DaptivChefCI::VagrantDriver.new(@provider)
     end
 
   end
