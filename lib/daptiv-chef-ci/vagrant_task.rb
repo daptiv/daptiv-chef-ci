@@ -49,7 +49,6 @@ class Vagrant
       @destroy_retry_attempts = 2
       @halt_retry_attempts = 2
       @environment = {}
-      @vagrant_driver = DaptivChefCI::VagrantDriver.new(@provider)
       yield self if block_given?
       define_task
     end
@@ -82,22 +81,26 @@ class Vagrant
     end
     
     def up()
-      @vagrant_driver.up({
+      vagrant_driver.up({
         :cmd_timeout_in_seconds => @up_timeout_in_seconds,
         :environment => @environment
       })
     end
     
     def package()
-      @vagrant_driver.package({ :base_dir => @vagrantfile_dir, :box_name => @box_name })
+      vagrant_driver.package({ :base_dir => @vagrantfile_dir, :box_name => @box_name })
     end
     
     def destroy()
-      @vagrant_driver.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds, :retry_attempts => @destroy_retry_attempts })
+      vagrant_driver.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds, :retry_attempts => @destroy_retry_attempts })
     end
     
     def halt()
-      @vagrant_driver.halt({ :cmd_timeout_in_seconds => @halt_timeout_in_seconds, :retry_attempts => @halt_retry_attempts })
+      vagrant_driver.halt({ :cmd_timeout_in_seconds => @halt_timeout_in_seconds, :retry_attempts => @halt_retry_attempts })
+    end
+    
+    def vagrant_driver()
+      @vagrant_driver ||= DaptivChefCI::VagrantDriver.new(@provider)
     end
     
   end
