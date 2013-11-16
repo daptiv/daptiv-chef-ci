@@ -88,15 +88,24 @@ class Vagrant
     end
     
     def package()
-      vagrant_driver.package({ :base_dir => @vagrantfile_dir, :box_name => @box_name })
+      vagrant_driver.package({
+        :base_dir => @vagrantfile_dir,
+        :box_name => @box_name,
+        :environment => @environment })
     end
     
     def destroy()
-      vagrant_driver.destroy({ :cmd_timeout_in_seconds => @destroy_timeout_in_seconds, :retry_attempts => @destroy_retry_attempts })
+      vagrant_driver.destroy({
+        :cmd_timeout_in_seconds => @destroy_timeout_in_seconds,
+        :retry_attempts => @destroy_retry_attempts,
+        :environment => @environment })
     end
     
     def halt()
-      vagrant_driver.halt({ :cmd_timeout_in_seconds => @halt_timeout_in_seconds, :retry_attempts => @halt_retry_attempts })
+      vagrant_driver.halt({
+        :cmd_timeout_in_seconds => @halt_timeout_in_seconds,
+        :retry_attempts => @halt_retry_attempts,
+        :environment => @environment })
     end
     
     def vagrant_driver()

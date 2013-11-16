@@ -7,7 +7,7 @@ describe VagrantDestroy::RakeTask, :unit => true do
   describe 'vagrant_destroy' do
     it 'should destroy the box' do
 
-      vagrant_driver.should_receive(:destroy).with({ :cmd_timeout_in_seconds => 180 })
+      vagrant_driver.should_receive(:destroy).with({ :cmd_timeout_in_seconds => 180, :environment => {} })
       
       task = rake['vagrant_destroy']
       task.invoke()
