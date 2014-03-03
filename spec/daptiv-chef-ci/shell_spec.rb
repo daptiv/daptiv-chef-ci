@@ -38,9 +38,15 @@ describe DaptivChefCI::Shell, :unit => true do
     end
 
     it 'should default LC_ALL environment var to nil' do
+      # On TravisCI (Linux) this ENV var is set to en_US.UTF-8, on OS X it is nil
+      original_lc_all = ENV['LC_ALL']
+      ENV.delete('LC_ALL') if original_lc_all
+
       shell = DaptivChefCI::Shell.new()
       out = shell.exec_cmd('echo $LC_ALL', 600)
       expect(out[0]).to be nil
+
+      ENV['LC_ALL'] = original_lc_all if original_lc_all
     end
 
     it 'should allow override of LC_ALL environment var' do
