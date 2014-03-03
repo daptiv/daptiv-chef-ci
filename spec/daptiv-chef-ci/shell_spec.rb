@@ -36,6 +36,18 @@ describe DaptivChefCI::Shell, :unit => true do
       out = shell.exec_cmd('echo $ENV_VAR1', 600, { :ENV_VAR1 => 'val1' })
       expect(out[0]).to eq('val1')
     end
+
+    it 'should default LC_ALL environment var to nil' do
+      shell = DaptivChefCI::Shell.new()
+      out = shell.exec_cmd('echo $LC_ALL', 600)
+      expect(out[0]).to be nil
+    end
+
+    it 'should allow override of LC_ALL environment var' do
+      shell = DaptivChefCI::Shell.new()
+      out = shell.exec_cmd('echo $LC_ALL', 600, { :LC_ALL => 'en_US.UTF-8' })
+      expect(out[0]).to eq('en_US.UTF-8')
+    end
     
   end
   
