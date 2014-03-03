@@ -21,6 +21,7 @@ module DaptivChefCI
     def exec_cmd(command, timeout = nil, environment = {})
       timeout ||= 600
       environment = Hash[ environment.map{ |k, v| [k.to_s, v.to_s] } ]
+      environment['LC_ALL'] = ENV['LC_ALL'] if !environment.has_key?('LC_ALL')
       path_at_start = ENV['PATH']
       begin
         ENV['PATH'] = path_without_gem_dir()
