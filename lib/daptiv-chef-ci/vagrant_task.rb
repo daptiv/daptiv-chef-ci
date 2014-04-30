@@ -71,11 +71,9 @@ class Vagrant
       begin
         execute do
           up()
-          halt()
           package() if @create_box
         end
       ensure
-        halt()
         destroy()
       end
     end
@@ -88,6 +86,7 @@ class Vagrant
     end
     
     def package()
+      halt()
       vagrant_driver.package({
         :base_dir => @vagrantfile_dir,
         :box_name => @box_name,
