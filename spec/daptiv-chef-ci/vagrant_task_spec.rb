@@ -9,7 +9,6 @@ describe Vagrant::RakeTask, :unit => true do
       
       vagrant_driver.should_receive(:destroy).with({ :cmd_timeout_in_seconds => 180, :retry_attempts => 2, :environment => {} })
       vagrant_driver.should_receive(:up).with({ :cmd_timeout_in_seconds => 7200, :environment => {} })
-      vagrant_driver.should_receive(:halt).at_least(1).times.with({ :cmd_timeout_in_seconds => 180, :retry_attempts => 2, :environment => {} })
       vagrant_driver.should_receive(:destroy).with({ :cmd_timeout_in_seconds => 180, :retry_attempts => 2, :environment => {} })
       
       task = rake['vagrant']
@@ -25,8 +24,6 @@ describe Vagrant::RakeTask, :unit => true do
         :cmd_timeout_in_seconds => 180, :retry_attempts => 2, :environment => environment })
       vagrant_driver.should_receive(:up).with({
         :cmd_timeout_in_seconds => 7200, :environment => environment })
-      vagrant_driver.should_receive(:halt).at_least(1).times.with({
-        :cmd_timeout_in_seconds => 180, :retry_attempts => 2, :environment => environment })
       vagrant_driver.should_receive(:destroy).with({
         :cmd_timeout_in_seconds => 180, :retry_attempts => 2, :environment => environment })
       
