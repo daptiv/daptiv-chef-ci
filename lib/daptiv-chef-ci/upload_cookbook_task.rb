@@ -5,16 +5,15 @@ require_relative 'raketask_helper'
 require_relative 'shell'
 
 class UploadCookbook
-  # Example usage, versions a cookbook to 1.0.x for usage in CI
+  # Example usage, uploads the current cookbook to the Chef server freezing
+  # it to the Canary environment.
   #
-  # VersionCookbook::RakeTask.new 'version_cookbook' do |t|
-  #   t.bump = false
-  #   t.version = "1.0.#{ENV['BUILD_NUMBER']}"
-  #   t.version_file = 'version.txt'
+  # UploadCookbook::RakeTask.new do |t|
+  #   t.environment = 'canary'
+  #   t.freeze = true
   # end
   #
-  # This class lets you define Rake tasks to manage a cookbook
-  # version.txt file
+  # This class lets you define Rake tasks to upload cookbooks to Chef.
   class RakeTask < ::Rake::TaskLib
     include ::Rake::DSL if defined? ::Rake::DSL
     include DaptivChefCI::RakeTaskHelpers
