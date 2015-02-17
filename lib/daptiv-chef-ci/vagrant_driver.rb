@@ -1,92 +1,83 @@
 require 'log4r'
 require 'mixlib/shellout/exceptions'
-require_relative 'basebox_builder_factory'
 require_relative 'shell'
 
 module DaptivChefCI
+  # Drives Vagrant via the command shell
   class VagrantDriver
-    
     # Constructs a new Vagrant management instance
     #
-    # @param [String] The name of the Vagrant virtualization provider: virtualbox, vmware_fusion
-    # defaults to :virtualbox
+    # @param [String] The name of the Vagrant virtualization provider:
+    # => virtualbox (default), vmware_fusion
     # @param [Shell] The CLI, optional
-    # @param [BaseBoxBuilderFactory] The base box builder factory instance, optional
-    def initialize(provider = :virtualbox, shell = nil, basebox_builder_factory = nil)
-      @logger = Log4r::Logger.new("daptiv_chef_ci::vagrant")
-      @shell = shell || DaptivChefCI::Shell.new()
-      @basebox_builder_factory = basebox_builder_factory || DaptivChefCI::BaseBoxBuilderFactory.new()
+    def initialize(provider = :virtualbox, shell = nil)
+      @logger = Log4r::Logger.new('daptiv_chef_ci::vagrant')
+      @shell = shell || DaptivChefCI::Shell.new
       @provider = provider
     end
-    
-    def destroy(opts={})
+
+    def destroy(opts = {})
       opts = {
-        :cmd_timeout_in_seconds => 180,
-        :retry_attempts => 2,
-        :retry_wait_in_seconds => 20
+        cmd_timeout_in_seconds: 180,
+        retry_attempts: 2,
+        retry_wait_in_seconds: 20,
+        continue_on_error: true
       }.merge(opts)
       exec_cmd_with_retry('vagrant destroy -f', opts)
     end
-    
-    def halt(opts={})
+
+    def halt(opts = {})
       opts = {
-        :cmd_timeout_in_seconds => 180,
-        :retry_attempts => 2,
-        :retry_wait_in_seconds => 20
+        cmd_timeout_in_seconds: 180,
+        retry_attempts: 2,
+        retry_wait_in_seconds: 20
       }.merge(opts)
       exec_cmd_with_retry('vagrant halt', opts)
     end
-    
-    def up(opts={})
+
+    def up(opts = {})
       opts = {
-        :cmd_timeout_in_seconds => 7200,
-        :retry_attempts => 0
+        cmd_timeout_in_seconds: 7200,
+        retry_attempts: 0
       }.merge(opts)
       cmd = 'vagrant up'
-      cmd += ' --provider=' + @provider.to_s if @provider != :virtualbox
+      cmd += ' --provider=' + @provider.to_s
       exec_cmd_with_retry(cmd, opts)
     end
-    
-    def provision(opts={})
+
+    def provision(opts = {})
       opts = {
-        :cmd_timeout_in_seconds => 7200,
-        :retry_attempts => 0
+        cmd_timeout_in_seconds: 7200,
+        retry_attempts: 0
       }.merge(opts)
       exec_cmd_with_retry('vagrant provision', opts)
     end
-    
-    def reload(opts={})
-      opts = {
-        :cmd_timeout_in_seconds => 180,
-        :retry_attempts => 0
-      }.merge(opts)
-      exec_cmd_with_retry('vagrant reload', opts)
-    end
-    
-    def package(opts={})
-      base_dir = opts[:base_dir] || Dir.pwd
-      box_name = opts[:box_name] || File.basename(base_dir)
-      box_name += '.box' unless box_name.end_with?('.box')
-      
-      builder = @basebox_builder_factory.create(@shell, @provider, base_dir)
-      builder.build(box_name)
-    end
-    
-    
+
     private
-    
-    def exec_cmd_with_retry(cmd, opts)
+
+    def exec_cmd_with_retry(cmd, options)
       attempt ||= 1
-      environment ||= opts[:environment] || {}
-      timeout ||= opts[:cmd_timeout_in_seconds] || 600
-      @shell.exec_cmd(cmd, timeout, environment)
+      opts ||= ensure_defaults(options)
+      @shell.exec_cmd(cmd, opts[:cmd_timeout_in_seconds], opts[:environment])
     rescue Mixlib::ShellOut::ShellCommandFailed => e
       @logger.warn("#{cmd} failed with error: #{e.message}")
-      raise if attempt > (opts[:retry_attempts] || 0)
+      if attempt > opts[:retry_attempts]
+        return if opts[:continue_on_error]
+        raise
+      end
       attempt += 1
-      sleep(opts[:retry_wait_in_seconds] || 10)
+      sleep(opts[:retry_wait_in_seconds])
       retry
     end
-    
+
+    def ensure_defaults(opts)
+      {
+        environment: {},
+        cmd_timeout_in_seconds: 600,
+        retry_attempts: 0,
+        retry_wait_in_seconds: 10,
+        continue_on_error: false
+      }.merge(opts)
+    end
   end
 end
