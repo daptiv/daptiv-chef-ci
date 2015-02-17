@@ -1,6 +1,7 @@
 require 'rake'
 require 'rake/tasklib'
 require 'rake/dsl_definition'
+require 'versionomy'
 require_relative 'raketask_helper'
 
 class VersionCookbook
@@ -45,7 +46,7 @@ class VersionCookbook
     end
 
     def create_or_update_version_file
-      version = Versionomy.parse(start_version)
+      version = ::Versionomy.parse(start_version)
       version = version.bump(:tiny) if @bump
       write_version(version)
     end
