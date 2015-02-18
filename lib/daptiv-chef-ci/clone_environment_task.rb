@@ -55,10 +55,15 @@ class CloneEnvironment
       env['description'] = "The #{dest_env} environment"
 
       env_file = Tempfile.new([@dest_env, '.json'])
-      IO.write(env_file.path, JSON.pretty_generate(env))
+      begin
+        IO.write(env_file.path, JSON.pretty_generate(env))
 
-      @shell.exec_cmd_in_context(
-        "knife environment from file '#{env_file.path}'")
+        @shell.exec_cmd_in_context(
+          "knife environment from file '#{env_file.path}'")
+      ensure
+        env_file.close
+        env_file.unlink
+      end
     end
   end
 end
