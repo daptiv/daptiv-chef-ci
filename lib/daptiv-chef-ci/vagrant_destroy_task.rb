@@ -6,7 +6,6 @@ require_relative 'raketask_helper'
 require_relative 'logger'
 
 class VagrantDestroy
-  
   # Example usage, destroys a Vagrant box.
   #
   # VagrantUp::RakeTask.new 'up' do |t|
@@ -17,11 +16,11 @@ class VagrantDestroy
   class RakeTask < ::Rake::TaskLib
     include ::Rake::DSL if defined? ::Rake::DSL
     include DaptivChefCI::RakeTaskHelpers
-    
+
     attr_accessor :vagrant_driver
     attr_accessor :destroy_timeout_in_seconds
     attr_accessor :environment
-    
+
     # @param [String] name The task name.
     # @param [String] desc Description of the task.
     def initialize(name = 'vagrant_destroy', desc = 'Vagrant destroy task')
@@ -31,22 +30,22 @@ class VagrantDestroy
       yield self if block_given?
       define_task
     end
-    
+
     private
 
     def define_task
       desc @desc
       task @name do
-        execute { vagrant_driver.destroy({
-          :cmd_timeout_in_seconds => @destroy_timeout_in_seconds,
-          :environment => @environment }) }
+        execute do
+          vagrant_driver.destroy(
+          cmd_timeout_in_seconds: @destroy_timeout_in_seconds,
+          environment: @environment)
+        end
       end
     end
-    
-    def vagrant_driver()
-      @vagrant_driver ||= DaptivChefCI::VagrantDriver.new()
-    end
 
+    def vagrant_driver
+      @vagrant_driver ||= DaptivChefCI::VagrantDriver.new
+    end
   end
 end
-
