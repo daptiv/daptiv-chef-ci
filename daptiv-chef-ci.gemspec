@@ -46,7 +46,7 @@ Gem::Specification.new do |gem|
   gem.version       = '0.1.0'
 
   gem.add_runtime_dependency 'log4r', '~> 1.1.10'
-  gem.add_runtime_dependency 'mixlib-shellout', '~> 1.2'
+  gem.add_runtime_dependency 'mixlib-shellout', '~> 2.0'
   gem.add_runtime_dependency 'versionomy', '~> 0.4.4'
 
   gem.add_development_dependency 'rake'
