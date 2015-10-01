@@ -43,7 +43,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = 'daptiv-chef-ci'
   gem.require_paths = ['lib']
-  gem.version       = '0.1.1'
+  gem.version       = '0.2.0'
 
   gem.add_runtime_dependency 'log4r', '~> 1.1.10'
   gem.add_runtime_dependency 'mixlib-shellout', '~> 2.0'
